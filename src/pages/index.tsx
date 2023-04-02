@@ -15,7 +15,7 @@ const CreatePostWizard = () => {
   return (
     <div className="flex gap-3 w-full">
       <img src={user.profileImageUrl} alt="Profile Image" className="w-16 h-16" />
-      <input placeholder="Type something" className="bg-transparent grow"/>
+      <input placeholder="Type something" className="bg-transparent grow" />
     </div>
   )
 };
@@ -58,7 +58,7 @@ const Home: NextPage = () => {
           </div>
           <div className="flex flex-col">
             {/* Don't forget about the key, as React uses it to keep track of what needs to be updated. */}
-            {[...data!, ...data!]?.map(({post, author}) => (<div key={post.id} className="p-8 border-b border-slate-400">{post.content}</div>))}
+            {[...data!, ...data!]?.map(({ post, author }) => (<div key={post.id} className="p-8 border-b border-slate-400">{post.content}</div>))}
           </div>
         </div>
       </main>
