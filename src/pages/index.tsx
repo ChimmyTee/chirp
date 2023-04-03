@@ -3,7 +3,7 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 
-import { api } from "~/utils/api";
+import { RouterOutputs, api } from "~/utils/api";
 
 // This right here is a component
 const CreatePostWizard = () => {
@@ -19,6 +19,26 @@ const CreatePostWizard = () => {
     </div>
   )
 };
+
+// with tRPC, instead of putting things in the parameter, you can use the getAll query
+// RouterOutputs uses the api.ts file, to create a tRPC next api definition that we fetched from.
+// This is a very useful inference helper for outputs, we can get use to get 
+// The [number] transform the data from an array to a single element of "number"
+type PostWithUser = RouterOutputs["posts"]["getAll"][number]
+
+// Don't make new component files just yet, until you actually really need it somewhere else.
+const PostView = (props: PostWithUser) => {
+  const { post, author } = props;
+  return (
+    <div key={post.id} className="flex gap-3 p-4 border-b border-slate-400">
+      <img src={author?.profileImageUrl} className="h-14 w-14 rounded-full" />
+      <div className="flex flex-col">
+        <div className="flex"><span>{author?.username}</span></div>
+        <span>{post.content}</span>
+      </div>
+    </div>
+  )
+}
 
 const Home: NextPage = () => {
   // const hello = api.example.hello.useQuery({ text: "from tRPC" });
@@ -58,7 +78,10 @@ const Home: NextPage = () => {
           </div>
           <div className="flex flex-col">
             {/* Don't forget about the key, as React uses it to keep track of what needs to be updated. */}
-            {[...data!, ...data!]?.map(({ post, author }) => (<div key={post.id} className="p-8 border-b border-slate-400">{post.content}</div>))}
+            {[...data!, ...data!]?.map((fullPost) => (
+              // (<div key={post.id} className="p-8 border-b border-slate-400">{post.content}</div>)
+              <PostView {...fullPost} key={fullPost.post.id} />)
+            )}
           </div>
         </div>
       </main>
