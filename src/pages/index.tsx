@@ -78,7 +78,8 @@ const Home: NextPage = () => {
           </div>
           <div className="flex flex-col">
             {/* Don't forget about the key, as React uses it to keep track of what needs to be updated. */}
-            {[...data!, ...data!]?.map((fullPost) => (
+            {/* {[...data!, ...data!]?.map((fullPost) => ( */}
+            {data?.concat(data)?.map((fullPost) => (
               // (<div key={post.id} className="p-8 border-b border-slate-400">{post.content}</div>)
               <PostView {...fullPost} key={fullPost.post.id} />)
             )}
