@@ -2,6 +2,11 @@ import { SignIn, SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+// You use extend to add the plugin
+dayjs.extend(relativeTime);
 
 import { RouterOutputs, api } from "~/utils/api";
 
@@ -33,7 +38,9 @@ const PostView = (props: PostWithUser) => {
     <div key={post.id} className="flex gap-3 p-4 border-b border-slate-400">
       <img src={author?.profileImageUrl} className="h-14 w-14 rounded-full" />
       <div className="flex flex-col">
-        <div className="flex"><span>{author?.username}</span></div>
+        <div className="flex text-slate-300 gap-2">
+          <span>{author?.username}</span><span>{`- ${dayjs(post.createdAt).fromNow()}`}</span>
+        </div>
         <span>{post.content}</span>
       </div>
     </div>
