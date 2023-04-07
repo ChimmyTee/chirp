@@ -1,4 +1,5 @@
-import { SignIn, SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
+// import { SignIn, SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
+import { SignInButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Image from "next/image";
 import Head from "next/head";
@@ -6,10 +7,12 @@ import Head from "next/head";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
-// You use extend to add the plugin
-dayjs.extend(relativeTime);
+import { LoadingPage } from "~/components/loading";
+
+dayjs.extend(relativeTime); // You use extend to add the plugin
 
 import { type RouterOutputs, api } from "~/utils/api";
+
 
 
 // This right here is a component
@@ -57,10 +60,33 @@ const PostView = (props: PostWithUser) => {
   )
 }
 
+// Main feed component
+const Feed = () => {
+  // isLoading is a feature in React Query
+  const { data, isLoading: postsLoading } = api.posts.getAll.useQuery();
+
+  // if (postsLoading || true) return <LoadingPage />; always return true to simulate what the loading is like.
+  if (postsLoading) return <LoadingPage />;
+
+  if (!data) return <div>Something went wrong</div>;
+
+  return (
+    <div className="flex flex-col">
+      {/* Don't forget about the key, as React uses it to keep track of what needs to be updated. */}
+      {/* {[...data!, ...data!]?.map((fullPost) => ( */}
+      {data?.concat(data)?.map((fullPost) => (
+        // (<div key={post.id} className="p-8 border-b border-slate-400">{post.content}</div>)
+        <PostView {...fullPost} key={fullPost.post.id} />)
+      )}
+    </div>
+  )
+
+}
+
 const Home: NextPage = () => {
   // const hello = api.example.hello.useQuery({ text: "from tRPC" });
-
-  const user = useUser();
+  // isLoaded is a property of useUser() from Clerk
+  const { isLoaded: userLoaded, isSignedIn } = useUser();
 
   // This line has potential to do something fancy with tRPC
   // You don't want the user connecting directly to a database especially when
@@ -68,12 +94,12 @@ const Home: NextPage = () => {
   /* The reason we use tRPC is so we can separate the data, where the users see it on
      index.tsx and we can access via the posts.ts Routers like its on the same machine.
   */
-  // This is a feature in React Query by using isLoading
-  const { data, isLoading } = api.posts.getAll.useQuery();
+  // Start fetching ASAP
+  api.posts.getAll.useQuery();
 
-  if (isLoading) return <div>Loading...</div>;
+  // Return empty div if BOTH aren't loaded, since user tends to load faster
+  if (!userLoaded) return <div />;
 
-  if (!data) return <div>Something went wrong</div>;
 
   // console.log(hello.data);
 
@@ -88,19 +114,12 @@ const Home: NextPage = () => {
         <div className="border-x border-slate-400 w-full md:max-w-2xl">
           <div className="flex border-b border-slate-400 p-4">
             {/* inline if true(!!) statement then(&&) do that */}
-            {!user.isSignedIn && <SignInButton />}
+            {!isSignedIn && <SignInButton />}
 
             {/* {!!user.isSignedIn && <SignOutButton />} */}
-            {!!user.isSignedIn && <CreatePostWizard />}
+            {!!isSignedIn && <CreatePostWizard />}
           </div>
-          <div className="flex flex-col">
-            {/* Don't forget about the key, as React uses it to keep track of what needs to be updated. */}
-            {/* {[...data!, ...data!]?.map((fullPost) => ( */}
-            {data?.concat(data)?.map((fullPost) => (
-              // (<div key={post.id} className="p-8 border-b border-slate-400">{post.content}</div>)
-              <PostView {...fullPost} key={fullPost.post.id} />)
-            )}
-          </div>
+          <Feed />
         </div>
       </main>
     </>
