@@ -4,7 +4,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { TRPCError } from "@trpc/server";
 // import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, privateProcedure, publicProcedure } from "~/server/api/trpc";
 
 // using this to filter out the data returned from usersList
 const filterUserForClient = (user: User) => {
@@ -76,6 +76,18 @@ export const postsRouter = createTRPCRouter({
       };
     });
 
+    // declaring a privateProcedure to be used on this posts objects.
+    // privateProcedures means, the user has to exist, publicProcedure doesn't care which will throw an error.
+    // This is especially important to ensure that user is always authenicated.
+    // create: privateProcedure.mutation( async ({ ctx }) => {
+    //   const authorId = ctx.currentUser.id;
+
+    //   const post = await ctx.prisma.post.create({
+    //     data: {
+    //       authorId,
+    //     },
+    //   }),
+    // }),
 
   }),
 });
