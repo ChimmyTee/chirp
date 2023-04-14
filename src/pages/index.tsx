@@ -12,12 +12,17 @@ import { LoadingPage } from "~/components/loading";
 dayjs.extend(relativeTime); // You use extend to add the plugin
 
 import { type RouterOutputs, api } from "~/utils/api";
+import { useState } from "react";
 
 
 
 // This right here is a component
 const CreatePostWizard = () => {
   const { user } = useUser();
+
+  const [input, setInput] = useState("");
+
+  const { mutate } = api.posts.create.useMutation();
 
   console.log(user);
   if (!user) return null;
@@ -29,7 +34,13 @@ const CreatePostWizard = () => {
         width={56}
         height={56}
       />
-      <input placeholder="Type something" className="bg-transparent grow" />
+      <input 
+        placeholder="Type something" 
+        className="bg-transparent grow"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+      />
+      <button onClick={() => mutate({ content: input })}>Post</button>
     </div>
   )
 };
@@ -74,7 +85,7 @@ const Feed = () => {
     <div className="flex flex-col">
       {/* Don't forget about the key, as React uses it to keep track of what needs to be updated. */}
       {/* {[...data!, ...data!]?.map((fullPost) => ( */}
-      {data?.concat(data)?.map((fullPost) => (
+      {data?.map((fullPost) => (
         // (<div key={post.id} className="p-8 border-b border-slate-400">{post.content}</div>)
         <PostView {...fullPost} key={fullPost.post.id} />)
       )}
