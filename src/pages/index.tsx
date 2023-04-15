@@ -22,7 +22,19 @@ const CreatePostWizard = () => {
 
   const [input, setInput] = useState("");
 
-  const { mutate } = api.posts.create.useMutation();
+  const ctx = api.useContext();
+
+  // isLoading here is also a special query
+  const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
+    onSuccess: () => {
+      setInput("");
+      void ctx.posts.getAll.invalidate();
+      // set the post to empty when posted.
+      // then we want to update the newly added post to the screen,
+      // easiest way to do that is to grab the ctx of the whole trpc cache
+      // api ctx call. aka ctx = api.useContext()
+    }
+  });
 
   console.log(user);
   if (!user) return null;
@@ -39,6 +51,7 @@ const CreatePostWizard = () => {
         className="bg-transparent grow"
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        disabled={isPosting}
       />
       <button onClick={() => mutate({ content: input })}>Post</button>
     </div>
