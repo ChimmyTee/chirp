@@ -4,8 +4,11 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-
-import { createTRPCRouter, privateProcedure, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  privateProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 
 // using this to filter out the data returned from usersList
 const filterUserForClient = (user: User) => {
@@ -25,7 +28,6 @@ const ratelimit = new Ratelimit({
   analytics: true,
 });
 
-
 export const postsRouter = createTRPCRouter({
   // Apparently this is a promise query
   getAll: publicProcedure.query(async ({ ctx }) => {
@@ -38,9 +40,9 @@ export const postsRouter = createTRPCRouter({
       take: 100,
       orderBy: [
         {
-          createdAt: 'desc',
+          createdAt: "desc",
         },
-      ]
+      ],
     });
 
     const users = (
@@ -98,7 +100,7 @@ export const postsRouter = createTRPCRouter({
   // This is especially important to ensure that user is always authenicated.
   // Here we have to use Zod to validate our inputs
   create: privateProcedure
-    .input(z.object({ content: z.string().min(1).max(280), }))
+    .input(z.object({ content: z.string().min(1).max(280) }))
     .mutation(async ({ ctx, input }) => {
       const authorId = ctx.userId;
 
