@@ -7,12 +7,13 @@ import Head from "next/head";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
-import { LoadingPage } from "~/components/loading";
+import LoadingSpinner, { LoadingPage } from "~/components/loading";
 
 dayjs.extend(relativeTime); // You use extend to add the plugin
 
 import { type RouterOutputs, api } from "~/utils/api";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 
 
@@ -33,10 +34,20 @@ const CreatePostWizard = () => {
       // then we want to update the newly added post to the screen,
       // easiest way to do that is to grab the ctx of the whole trpc cache
       // api ctx call. aka ctx = api.useContext()
+    },
+    onError: (e) => {
+      const errorMessage = e.data?.zodError?.fieldErrors.content;
+      if (errorMessage && errorMessage[0]) {
+        toast.error(errorMessage[0]);
+      } else {
+        toast.error("Failed to post! Please try again later.");
+      }
+
+      // toast.error("Failed to post! Please try again later.");
     }
   });
 
-  console.log(user);
+  // console.log(user);
   if (!user) return null;
 
   return (
@@ -46,14 +57,29 @@ const CreatePostWizard = () => {
         width={56}
         height={56}
       />
-      <input 
-        placeholder="Type something" 
+      <input
+        placeholder="Type something"
         className="bg-transparent grow"
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            if (input !== "") {
+              mutate({ content: input })
+            }
+          }
+        }}
         disabled={isPosting}
       />
-      <button onClick={() => mutate({ content: input })}>Post</button>
+      {input !== "" && !isPosting && (
+        <button onClick={() => mutate({ content: input })}>Post</button>
+      )}
+      {isPosting && (
+        <div className="flex items-center justify-center">
+          <LoadingSpinner size={20} />
+        </div>
+      )}
     </div>
   )
 };
@@ -65,6 +91,7 @@ const CreatePostWizard = () => {
 type PostWithUser = RouterOutputs["posts"]["getAll"][number]
 
 // Don't make new component files just yet, until you actually really need it somewhere else.
+// Single post
 const PostView = (props: PostWithUser) => {
   const { post, author } = props;
   return (

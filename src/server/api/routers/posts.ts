@@ -100,7 +100,7 @@ export const postsRouter = createTRPCRouter({
   // This is especially important to ensure that user is always authenicated.
   // Here we have to use Zod to validate our inputs
   create: privateProcedure
-    .input(z.object({ content: z.string().min(1).max(280) }))
+    .input(z.object({ content: z.string().min(4, { message: "Must be 4 or more characters long" }).max(280) }))
     .mutation(async ({ ctx, input }) => {
       const authorId = ctx.userId;
 
