@@ -14,6 +14,7 @@ dayjs.extend(relativeTime); // You use extend to add the plugin
 import { type RouterOutputs, api } from "~/utils/api";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 
 
@@ -103,7 +104,12 @@ const PostView = (props: PostWithUser) => {
       />
       <div className="flex flex-col">
         <div className="flex text-slate-300 gap-1">
-          <span>{author?.username}</span><span>{`- ${dayjs(post.createdAt).fromNow()}`}</span>
+          <Link href={`/@${author.username}`}>
+            <span>{author?.username}</span>
+          </Link>
+          <Link href={`/post/@${post.id}`}>
+            <span>{`- ${dayjs(post.createdAt).fromNow()}`}</span>
+          </Link>
         </div>
         <span className="text-xl">{post.content}</span>
       </div>
