@@ -11,16 +11,19 @@ import {
 } from "~/server/api/trpc";
 
 // using this to filter out the data returned from usersList
-const filterUserForClient = (user: User) => {
-  return {
-    id: user.id,
-    username: user.username,
-    profileImageUrl: user.profileImageUrl,
-  };
-};
+// got turned into a helper file now when used at profile router.
+// kept it here for future reference.
+// const filterUserForClient = (user: User) => {
+//   return {
+//     id: user.id,
+//     username: user.username,
+//     profileImageUrl: user.profileImageUrl,
+//   };
+// };
 
 import { Ratelimit } from "@upstash/ratelimit"; // for deno: see above
 import { Redis } from "@upstash/redis";
+import { filterUserForClient } from "~/server/helpers/filterUserForClient";
 
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
