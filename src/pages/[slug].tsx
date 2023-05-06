@@ -2,21 +2,24 @@ import { type GetStaticProps, type NextPage } from "next";
 import Head from "next/head";
 import { api } from "~/utils/api";
 
-const ProfilePage: NextPage = () => {
-  const { data, isLoading } = api.profile.getUserByID.useQuery({
-    userId: "user_2NnDbTCzRBgIj18XzHxcSaaVLWH",
+//  before giving the props <{ userId : string }, make sure to add it down below
+const ProfilePage: NextPage<{ userId: string }> = ({ userId }) => {
+  // const { data, isLoading } = api.profile.getUserByID.useQuery({
+  const { data } = api.profile.getUserByID.useQuery({
+    userId,
   });
 
-  if (isLoading) return <div>Loading...</div>
+  // if (isLoading) return <div>Loading...</div>
 
   if (!data) return <div>404</div>
 
-  console.log(data);
+  // console.log(userId);
+
 
   return (
     <>
       <Head>
-        <title>Profile</title>
+        <title>{data.id}</title>
       </Head>
       <main className="flex h-screen justify-center">
         <div>{data.id}</div>
@@ -53,8 +56,12 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
   if (typeof slug !== "string") throw new Error("no slug");
 
+  // this line of code here is quite unique as it prevents the loading to be hit. aka removes it altogther.
+  const userId = slug.replace("@", "");
+
   // this is where we use the SSG helper by hydrating the data.
-  await ssg.profile.getUserByID.prefetch({ userId: slug });
+  // await ssg.profile.getUserByID.prefetch({ userId: slug });
+  await ssg.profile.getUserByID.prefetch({ userId });
 
   // then we dehydate it in here. Essentially what trpcState SSG does is, it takes all the things we
   // fetched and put it into a shape that can be parsed through next.js server-side props. In this case,
@@ -64,10 +71,17 @@ export const getStaticProps: GetStaticProps = async (context) => {
   return {
     props: {
       trpcState: ssg.dehydrate(),
+      userId,
     }
   }
 }
 
-// continue the work with getStaticPaths, if we use getStaticProps, we get a Path. 2:11:00
+// continue the work with getStaticPaths, if we use getStaticProps, we need a Path.
+// This is required to tell nextJS what's a valid path otherwise we can't deploy it.
+// In this case, we don't really care what paths, it can be something more direct like the user specific
+// or anything general like in this case.
+export const getStaticPaths = () => {
+  return { paths: [], fallback: "blocking" };
+}
 
 export default ProfilePage;
