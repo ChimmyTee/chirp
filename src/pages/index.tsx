@@ -15,6 +15,7 @@ import { type RouterOutputs, api } from "~/utils/api";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { PageLayout } from "~/components/layout";
 
 
 
@@ -103,7 +104,7 @@ const PostView = (props: PostWithUser) => {
         height={56}
       />
       <div className="flex flex-col">
-        <div className="flex text-slate-300 gap-1">
+        <div className="md:flex text-slate-300 gap-1 overflow-x-hidden whitespace-pre-line">
           <Link href={`/@${author.username}`}>
             <span>{author?.username}</span>
           </Link>
@@ -162,8 +163,9 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <main className="flex h-screen justify-center">
-        <div className="border-x border-slate-400 w-full md:max-w-2xl">
+      {/* <main className="flex h-screen justify-center">
+        <div className="border-x border-slate-400 w-full md:max-w-2xl"> */}
+        <PageLayout>
           <div className="flex border-b border-slate-400 p-4">
             {/* inline if true(!!) statement then(&&) do that */}
             {!isSignedIn && <SignInButton />}
@@ -173,8 +175,9 @@ const Home: NextPage = () => {
           </div>
           {!!isSignedIn && <UserButton />}
           <Feed />
-        </div>
-      </main>
+        </PageLayout>
+        {/* </div>
+      </main> */}
     </>
   );
 };
